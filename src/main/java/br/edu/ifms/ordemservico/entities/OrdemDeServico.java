@@ -33,7 +33,6 @@ public class OrdemDeServico  implements Serializable {
 	private String setor;
 	@Column(columnDefinition = "TEXT")
 	private String descricaoProblema;
-	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
 	private Date dataCadastro;
 	@Enumerated(value = EnumType.STRING)
 	private Status status;
