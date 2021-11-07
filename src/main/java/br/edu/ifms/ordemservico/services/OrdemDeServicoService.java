@@ -65,9 +65,7 @@ public class OrdemDeServicoService {
 			repository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
 			throw new ResourceNotFoundException("Não foi possível excluir, o id da ordem não foi localizado");
-		} /*catch (DataIntegrityViolationException e) {
-			throw new DataBaseException("Não foi possível excluir a ordem, pois a mesma está em uso");
-		}*/
+		} 
 		
 	}
 	
