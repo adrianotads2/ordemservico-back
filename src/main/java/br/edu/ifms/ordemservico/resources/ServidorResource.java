@@ -20,7 +20,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
 import br.edu.ifms.ordemservico.dto.ServidorDTO;
+import br.edu.ifms.ordemservico.entities.Servidor;
 import br.edu.ifms.ordemservico.services.ServidorService;
+import br.edu.ifms.ordemservico.services.exceptions.ErroAutenticacaoException;
 
 @RestController
 @RequestMapping(value = "/servidores")
@@ -39,6 +41,16 @@ public class ServidorResource {
 	public ResponseEntity<ServidorDTO> findById(@PathVariable Long id){
 		ServidorDTO dto = service.findById(id);
 		return ResponseEntity.ok().body(dto);
+	}
+	
+	@PostMapping("/autenticar")
+	public ResponseEntity autenticar(@RequestBody ServidorDTO dto) {
+		try {
+			Servidor servidorAutenticado = service.autenticar(dto.getEmail(), dto.getSenha());
+			return ResponseEntity.ok(servidorAutenticado);
+		} catch (ErroAutenticacaoException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 	
 	@PostMapping

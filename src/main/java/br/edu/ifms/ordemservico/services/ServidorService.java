@@ -17,6 +17,8 @@ import br.edu.ifms.ordemservico.dto.ServidorDTO;
 import br.edu.ifms.ordemservico.entities.Servidor;
 import br.edu.ifms.ordemservico.repositories.ServidorRepository;
 import br.edu.ifms.ordemservico.services.exceptions.DataBaseException;
+import br.edu.ifms.ordemservico.services.exceptions.ErroAutenticacaoException;
+import br.edu.ifms.ordemservico.services.exceptions.RegraNegocioException;
 import br.edu.ifms.ordemservico.services.exceptions.ResourceNotFoundException;
 
 @Service
@@ -24,6 +26,17 @@ public class ServidorService {
 
 	@Autowired
 	private ServidorRepository repository;
+	
+	public Servidor autenticar(String email, String senha) {
+		Optional<Servidor> servidor = repository.findByEmail(email);
+		if(!servidor.isPresent()) {
+			throw new ErroAutenticacaoException("O email do servidor nÃ£o foi encontrado.");
+		}
+		if(!servidor.get().getSenha().equals(senha)) {
+			throw new ErroAutenticacaoException("A senha do servidor nÃ£o foi localizada.");
+		}
+		return servidor.get();
+	}
 	
 	@Transactional(readOnly = true)
 	public List<ServidorDTO> findAll(){
@@ -35,7 +48,7 @@ public class ServidorService {
 	@Transactional(readOnly = true)
 	public ServidorDTO findById(Long id){
 		Optional<Servidor> obj = repository.findById(id);
-		Servidor servidor = obj.orElseThrow(()-> new ResourceNotFoundException("O servidor solicitado não foi localizado"));
+		Servidor servidor = obj.orElseThrow(()-> new ResourceNotFoundException("O servidor solicitado nï¿½o foi localizado"));
 		return new ServidorDTO(servidor);
 	}
 	
@@ -43,6 +56,7 @@ public class ServidorService {
 	public ServidorDTO insert(ServidorDTO dto) {
 		Servidor servidor = new Servidor();
 		copyDtoToEntity(dto, servidor);
+		validarEmail(servidor.getEmail());
 		servidor = repository.save(servidor);
 		return new ServidorDTO(servidor);
 	}
@@ -52,10 +66,11 @@ public class ServidorService {
 		try {
 			Servidor servidor = repository.getById(id);
 			copyDtoToEntity(dto, servidor);
+			validarEmail(servidor.getEmail());
 			servidor = repository.save(servidor);
 			return new ServidorDTO(servidor);
 		}catch(EntityNotFoundException e) {
-			throw new ResourceNotFoundException("O id do Servidor não foi localizado");
+			throw new ResourceNotFoundException("O id do Servidor nï¿½o foi localizado");
 		}
 		
 		
@@ -67,9 +82,9 @@ public class ServidorService {
 		try {
 			repository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
-			throw new ResourceNotFoundException("Não foi possível excluir, o id do Servidor não foi localizado");
+			throw new ResourceNotFoundException("Nï¿½o foi possï¿½vel excluir, o id do Servidor nï¿½o foi localizado");
 		} catch (DataIntegrityViolationException e) {
-			throw new DataBaseException("Não foi possível excluir o servidor, pois o mesmo está em uso");
+			throw new DataBaseException("Nï¿½o foi possï¿½vel excluir o servidor, pois o mesmo estï¿½ em uso");
 		}
 		
 	}
@@ -82,7 +97,11 @@ public class ServidorService {
 		
 	}
 
-
-	
+	public void validarEmail(String email) {
+		boolean existe = repository.existsByEmail(email);
+		if(existe) {
+			throw new RegraNegocioException("JÃ¡ existe um servidor cadastrado com esse email.");
+		}
+	}
 	
 }
