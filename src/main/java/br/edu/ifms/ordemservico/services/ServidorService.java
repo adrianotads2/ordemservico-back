@@ -27,7 +27,7 @@ public class ServidorService {
 	@Autowired
 	private ServidorRepository repository;
 	
-	public Servidor autenticar(String email, String senha) {
+	public ServidorDTO autenticar(String email, String senha) {
 		Optional<Servidor> servidor = repository.findByEmail(email);
 		if(!servidor.isPresent()) {
 			throw new ErroAutenticacaoException("O email do servidor não foi encontrado.");
@@ -35,7 +35,7 @@ public class ServidorService {
 		if(!servidor.get().getSenha().equals(senha)) {
 			throw new ErroAutenticacaoException("A senha do servidor não foi localizada.");
 		}
-		return servidor.get();
+		return new ServidorDTO(servidor.get());
 	}
 	
 	@Transactional(readOnly = true)

@@ -44,13 +44,9 @@ public class ServidorResource {
 	}
 	
 	@PostMapping("/autenticar")
-	public ResponseEntity autenticar(@RequestBody ServidorDTO dto) {
-		try {
-			Servidor servidorAutenticado = service.autenticar(dto.getEmail(), dto.getSenha());
+	public ResponseEntity<ServidorDTO> autenticar(@RequestBody ServidorDTO dto) {
+			ServidorDTO servidorAutenticado = service.autenticar(dto.getEmail(), dto.getSenha());
 			return ResponseEntity.ok(servidorAutenticado);
-		} catch (ErroAutenticacaoException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
 	}
 	
 	@PostMapping
